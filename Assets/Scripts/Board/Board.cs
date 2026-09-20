@@ -25,6 +25,9 @@ public class Board
 
     private int m_matchMin;
 
+    private static readonly int NormalTypeCount = Enum.GetValues(typeof(NormalItem.eNormalType)).Length;
+    private List<NormalItem.eNormalType> _fillCandidates = new List<NormalItem.eNormalType>();
+
     public Board(Transform transform, GameSettings gameSettings)
     {
         m_root = transform;
@@ -147,7 +150,8 @@ public class Board
 
                 NormalItem item = new NormalItem();
 
-                item.SetType(Utils.GetRandomNormalType());
+                //item.SetType(Utils.GetRandomNormalType());
+                item.SetType(GetRarestTypeForGap(cell));
                 item.SetView();
                 item.SetViewRoot(m_root);
 
@@ -157,6 +161,63 @@ public class Board
         }
     }
 
+    /// <summary>
+    /// Return a type which difference from 4 neihbours, and rarest in board
+    /// </summary>
+    private NormalItem.eNormalType GetRarestTypeForGap(Cell cell)
+    {
+        _fillCandidates.Clear();
+        int bestCount = int.MaxValue;
+        for (int i = 0; i < NormalTypeCount; i++)
+        {
+            NormalItem.eNormalType type = (NormalItem.eNormalType)i;
+            if (IsUseByNeighbour(cell, type)) continue;
+            int quantity = QuantityByTypeInBoard(type);
+            if (quantity < bestCount)
+            {
+                bestCount = quantity;
+                _fillCandidates.Clear();
+                _fillCandidates.Add(type);
+            }
+            else if (quantity == bestCount)
+            {
+                _fillCandidates.Add(type);
+            }
+        }
+        if (_fillCandidates.Count == 0)
+            return Utils.GetRandomNormalType();
+        return _fillCandidates[UnityEngine.Random.Range(0, _fillCandidates.Count)];
+    }
+
+    private bool IsUseByNeighbour(Cell cell, NormalItem.eNormalType type)
+    {
+        return HaveType(cell.NeighbourBottom, type)
+            || HaveType(cell.NeighbourUp, type)
+            || HaveType(cell.NeighbourRight, type)
+            || HaveType(cell.NeighbourLeft, type);
+    }
+
+    private bool HaveType(Cell cell, NormalItem.eNormalType type)
+    {
+        NormalItem item = cell != null ? cell.Item as NormalItem : null;
+        return item != null && item.ItemType == type;
+    }
+
+    private int QuantityByTypeInBoard(NormalItem.eNormalType type)
+    {
+        int c = 0;
+        for (int x = 0; x < boardSizeX; x++)
+        {
+            for (int y = 0; y < boardSizeY; y++)
+            {
+                NormalItem item = m_cells[x, y].Item as NormalItem;
+
+                if (item != null && item.ItemType == type)
+                    c++;
+            }
+        }
+        return c;
+    }
     internal void ExplodeAllItems()
     {
         for (int x = 0; x < boardSizeX; x++)
@@ -350,7 +411,7 @@ public class Board
         var dir = GetMatchDirection(matches);
 
         var bonus = matches.Where(x => x.Item is BonusItem).FirstOrDefault();
-        if(bonus == null)
+        if (bonus == null)
         {
             return matches;
         }
