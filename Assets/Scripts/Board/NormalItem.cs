@@ -17,9 +17,39 @@ public class NormalItem : Item
 
     public eNormalType ItemType;
 
+    private static NormalItemSkin _skin;
+    private static bool _isLoaded;
+
+    public static NormalItemSkin Skin
+    {
+        get
+        {
+            if (!_isLoaded)
+            {
+                _skin = Resources.Load<NormalItemSkin>(Constants.NORMAL_ITEM_SKIN_PATH);
+                _isLoaded = true;
+            }
+            return _skin;
+        }
+    }
     public void SetType(eNormalType type)
     {
         ItemType = type;
+    }
+    public override void SetView()
+    {
+        base.SetView();
+        ApplySkin();
+    }
+
+    private void ApplySkin()
+    {
+        if (!View) return;
+        if (Skin == null) return;
+        Sprite spr = Skin.GetSkin(ItemType);
+        if (spr == null) return;
+        if (spriteRenderer != null)
+            spriteRenderer.sprite = spr;
     }
 
     protected override string GetPrefabName()

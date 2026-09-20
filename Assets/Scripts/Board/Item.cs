@@ -25,7 +25,7 @@ public class Item
 
     public Transform View { get; private set; }
 
-    private SpriteRenderer spriteRenderer;
+    protected SpriteRenderer spriteRenderer;
 
     public virtual void SetView()
     {
