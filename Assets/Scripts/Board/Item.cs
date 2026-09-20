@@ -4,6 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+public static class PrefabCaching
+{
+    public static Dictionary<string, GameObject> cached = new Dictionary<string, GameObject>();
+
+    public static GameObject Get(string prefabName)
+    {
+        if (string.IsNullOrEmpty(prefabName))
+            return null;
+        if (!cached.ContainsKey(prefabName))
+            cached.Add(prefabName, Resources.Load<GameObject>(prefabName));
+        return cached[prefabName];
+    }
+}
+
 [Serializable]
 public class Item
 {
@@ -17,14 +31,12 @@ public class Item
     {
         string prefabname = GetPrefabName();
 
-        if (!string.IsNullOrEmpty(prefabname))
+        GameObject prefab = PrefabCaching.Get(prefabname);
+
+        if (prefab)
         {
-            GameObject prefab = Resources.Load<GameObject>(prefabname);
-            if (prefab)
-            {
-                View = GameObject.Instantiate(prefab).transform;
-                spriteRenderer = View.GetComponent<SpriteRenderer>();
-            }
+            View = GameObject.Instantiate(prefab).transform;
+            spriteRenderer = View.GetComponent<SpriteRenderer>();
         }
     }
 
