@@ -12,10 +12,17 @@ public class Utils
 
     public static NormalItem.eNormalType GetRandomNormalTypeExcept(NormalItem.eNormalType[] types)
     {
-        List<NormalItem.eNormalType> list = AllNormalTypes.Cast<NormalItem.eNormalType>().Except(types).ToList();
 
-        int rnd = URandom.Range(0, list.Count);
-        NormalItem.eNormalType result = list[rnd];
+        if (types == null || types.Length == 0)
+        {
+            return GetRandomNormalType();
+        }
+        NormalItem.eNormalType result;
+        do
+        {
+            result = GetRandomNormalType();
+        }
+        while (Array.IndexOf(types, result) >= 0);
 
         return result;
     }
