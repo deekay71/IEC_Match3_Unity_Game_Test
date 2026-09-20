@@ -185,7 +185,7 @@ public class BoardController : MonoBehaviour
         }
         else
         {
-            m_potentialMatch = m_board.GetPotentialMatches();
+            m_potentialMatch = m_board.GetPotentialMatches();   // maybe null
             if (m_potentialMatch.Count > 0)
             {
                 IsBusy = false;
@@ -224,7 +224,7 @@ public class BoardController : MonoBehaviour
             matches[i].ExplodeItem();
         }
 
-        if(matches.Count > m_gameSettings.MatchesMin)
+        if (matches.Count > m_gameSettings.MatchesMin)
         {
             m_board.ConvertNormalToBonus(matches, cellEnd);
         }
@@ -287,19 +287,21 @@ public class BoardController : MonoBehaviour
     private void ShowHint()
     {
         m_hintIsShown = true;
-        foreach (var cell in m_potentialMatch)
-        {
-            cell.AnimateItemForHint();
-        }
+        if (m_potentialMatch != null)
+            foreach (var cell in m_potentialMatch)
+            {
+                cell.AnimateItemForHint();
+            }
     }
 
     private void StopHints()
     {
         m_hintIsShown = false;
-        foreach (var cell in m_potentialMatch)
-        {
-            cell.StopHintAnimation();
-        }
+        if (m_potentialMatch != null)
+            foreach (var cell in m_potentialMatch)
+            {
+                cell.StopHintAnimation();
+            }
 
         m_potentialMatch.Clear();
     }
