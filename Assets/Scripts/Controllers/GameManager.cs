@@ -45,6 +45,11 @@ public class GameManager : MonoBehaviour
 
     private LevelCondition m_levelCondition;
 
+    // NEW
+
+    private eLevelMode _currentMode;
+    private int _currentSeed;
+
     private void Awake()
     {
         State = eStateGame.SETUP;
@@ -80,11 +85,25 @@ public class GameManager : MonoBehaviour
             DOTween.PlayAll();
         }
     }
-
-    public void LoadLevel(eLevelMode mode)
+    public void LoadNewLevel(eLevelMode mode)
     {
+        LoadLevel(mode, NewSeed());
+    }
+    private int NewSeed() => UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+
+    public void RestartLevel()
+    {
+        LoadLevel(_currentMode, _currentSeed);
+    }
+    public void LoadLevel(eLevelMode mode, int seed)
+    {
+        ClearLevel();
+
+        _currentMode = mode;
+        _currentSeed = seed;
+
         m_boardController = new GameObject("BoardController").AddComponent<BoardController>();
-        m_boardController.StartGame(this, m_gameSettings);
+        m_boardController.StartGame(this, m_gameSettings, _currentSeed);
 
         if (mode == eLevelMode.MOVES)
         {
@@ -94,7 +113,7 @@ public class GameManager : MonoBehaviour
         else if (mode == eLevelMode.TIMER)
         {
             m_levelCondition = this.gameObject.AddComponent<LevelTime>();
-            m_levelCondition.Setup(m_gameSettings.LevelMoves, m_uiMenu.GetLevelConditionView(), this);
+            m_levelCondition.Setup(m_gameSettings.LevelTime, m_uiMenu.GetLevelConditionView(), this);
         }
 
         m_levelCondition.ConditionCompleteEvent += GameOver;
@@ -109,6 +128,13 @@ public class GameManager : MonoBehaviour
 
     internal void ClearLevel()
     {
+        if (m_levelCondition != null)
+        {
+            m_levelCondition.ConditionCompleteEvent -= GameOver;
+            Destroy(m_levelCondition);
+            m_levelCondition = null;
+        }
+
         if (m_boardController)
         {
             m_boardController.Clear();

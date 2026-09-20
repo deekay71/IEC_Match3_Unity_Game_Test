@@ -34,6 +34,7 @@ public class NormalItemSkin : ScriptableObject
 
     private void OnDisable()
     {
-        _cached.Clear();
+        if (_cached != null)
+            _cached.Clear();
     }
 }

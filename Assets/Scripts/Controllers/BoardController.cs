@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+using URandom = UnityEngine.Random;
 public class BoardController : MonoBehaviour
 {
     public event Action OnMoveEvent = delegate { };
@@ -31,7 +32,7 @@ public class BoardController : MonoBehaviour
 
     private bool m_gameOver;
 
-    public void StartGame(GameManager gameManager, GameSettings gameSettings)
+    public void StartGame(GameManager gameManager, GameSettings gameSettings, int seed)
     {
         m_gameManager = gameManager;
 
@@ -40,6 +41,8 @@ public class BoardController : MonoBehaviour
         m_gameManager.StateChangedAction += OnGameStateChange;
 
         m_cam = Camera.main;
+
+        URandom.InitState(seed);
 
         m_board = new Board(this.transform, gameSettings);
 
@@ -281,6 +284,10 @@ public class BoardController : MonoBehaviour
 
     internal void Clear()
     {
+        if (m_gameManager != null)
+        {
+            m_gameManager.StateChangedAction -= OnGameStateChange;
+        }
         m_board.Clear();
     }
 
