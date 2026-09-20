@@ -11,6 +11,7 @@ public class Item
 
     public Transform View { get; private set; }
 
+    private SpriteRenderer spriteRenderer;
 
     public virtual void SetView()
     {
@@ -22,6 +23,7 @@ public class Item
             if (prefab)
             {
                 View = GameObject.Instantiate(prefab).transform;
+                spriteRenderer = View.GetComponent<SpriteRenderer>();
             }
         }
     }
@@ -60,10 +62,9 @@ public class Item
     {
         if (View == null) return;
 
-        SpriteRenderer sp = View.GetComponent<SpriteRenderer>();
-        if (sp)
+        if (spriteRenderer)
         {
-            sp.sortingOrder = 1;
+            spriteRenderer.sortingOrder = 1;
         }
     }
 
@@ -72,10 +73,9 @@ public class Item
     {
         if (View == null) return;
 
-        SpriteRenderer sp = View.GetComponent<SpriteRenderer>();
-        if (sp)
+        if (spriteRenderer)
         {
-            sp.sortingOrder = 0;
+            spriteRenderer.sortingOrder = 0;
         }
 
     }
